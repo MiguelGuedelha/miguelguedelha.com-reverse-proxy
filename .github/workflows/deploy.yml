@@ -54,7 +54,7 @@ jobs:
           VERSION: ${{ env.GitVersion_MajorMinorPatch }}
           IMAGE_TAG: ${{ steps.docker-tag.outputs.tag }}
         run: |
-          docker build --build-arg Version=${{ env.VERSION }} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . -f ./MiguelGuedelha.ReverseProxy\Dockerfile
+          docker build --build-arg Version=${{ env.VERSION }} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG . -f ./MiguelGuedelha.ReverseProxy/Dockerfile
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
   deploy:
     needs: build
