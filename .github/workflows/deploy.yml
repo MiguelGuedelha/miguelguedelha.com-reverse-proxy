@@ -76,12 +76,14 @@ jobs:
           ECR_REGISTRY: ${{ needs.build.outputs.ecr-registry }}
           IMAGE_TAG: ${{ needs.build.outputs.docker-tag }}
           IMAGE_NAME: miguelguedelha-com-reverse-proxy
+          REDIS_COMMANDER_HTTP_USER: ${{ secrets.REDIS_COMMANDER_HTTP_USER }}
+          REDIS_COMMANDER_HTTP_PASSWORD: ${{ secrets.REDIS_COMMANDER_HTTP_PASSWORD }}
         with:
           host: ${{ secrets.HOST }}
           port: ${{ secrets.PORT }}
           key: ${{ secrets.SSH_KEY }}
           username: ${{ secrets.USERNAME }}
-          envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG,IMAGE_NAME,
+          envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG,IMAGE_NAME,REDIS_COMMANDER_HTTP_USER,REDIS_COMMANDER_HTTP_PASSWORD
           script: |
             docker compose up -d
             docker stop $IMAGE_NAME 2> /dev/null
