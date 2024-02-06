@@ -1,0 +1,39 @@
+﻿### Frontend
+GET http://localhost:5280/
+Host: www.miguelguedelha.com
+
+### Frontend - Sub page
+GET http://localhost:5280/cookie-policy
+Host: www.miguelguedelha.com
+
+### Sitemap
+GET http://localhost:5280/sitemap.xml
+Host: www.miguelguedelha.com
+
+### Frontend - Robots.txt
+GET http://localhost:5280/robots.txt
+Host: www.miguelguedelha.com
+
+### Site API - Swagger
+GET http://localhost:5280/swagger
+Host: siteapi.miguelguedelha.com
+
+### Site API - Page
+GET http://localhost:5280/v1/page/index
+Host: siteapi.miguelguedelha.com
+
+### Site API Robots.txt
+GET http://localhost:5280/robots.txt
+Host: siteapi.miguelguedelha.com
+
+### Redis Commander
+GET http://localhost:5280/redis-ui
+Host: dashboards.miguelguedelha.com
+
+### Sleep Token Rune Generator
+GET http://localhost:5280/
+Host: runegen.miguelguedelha.com
+
+### Sleep Token Rune Generator - Sub page
+GET http://localhost:5280/cookie-policy
+Host: runegen.miguelguedelha.com

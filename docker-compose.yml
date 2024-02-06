@@ -1,0 +1,42 @@
+version: '3.8'
+services:
+  reverse-proxy:
+    build:
+      context: ./MiguelGuedelha.ReverseProxy/
+      dockerfile: ./MiguelGuedelha.ReverseProxy/Dockerfile
+    container_name: reverse-proxy
+    ports:
+      - "80:8080"
+      - "443:443"
+    volumes:
+      - ./data/yarp/certificates:/data/LettuceEncrypt
+    restart: always
+    networks:
+      - miguelguedelha-com
+  redis:
+    container_name: redis
+    image: redis:alpine
+    restart: always
+    networks:
+      - miguelguedelha-com
+  redis-commander:
+    container_name: redis-commander
+    depends_on:
+      - redis
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    ports:
+      - "8081:8081"
+    networks:
+      - miguelguedelha-com
+    environment:
+      - REDIS_HOSTS=redis
+      - HTTP_USER=${REDIS_COMMANDER_HTTP_USER}
+      - HTTP_PASSWORD=${REDIS_COMMANDER_HTTP_PASSWORD}
+      - TRUST_PROXY=true
+      - SCAN_COUNT=10000
+      - URL_PREFIX=/redis-ui
+networks:
+  miguelguedelha-com:
+    external: false
+    name: miguelguedelha-com

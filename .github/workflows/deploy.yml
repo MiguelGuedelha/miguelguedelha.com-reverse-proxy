@@ -1,0 +1,97 @@
+#file: noinspection YAMLSchemaValidation
+name: Deploy Reverse Proxy
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:
+
+env:
+  ECR_REPOSITORY: miguelguedelha-reverse-proxy
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      docker-tag: ${{ steps.docker-tag.outputs.tag }}
+      ecr-registry: ${{ steps.login-ecr.outputs.registry }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }} # checkout the correct branch name
+          fetch-depth: 0
+
+      - name: Install GitVersion
+        uses: gittools/actions/gitversion/setup@v0
+        with:
+          versionSpec: "5.x"
+
+      - name: Determine Version
+        id: git-version
+        uses: gittools/actions/gitversion/execute@v0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: eu-west-2
+          mask-aws-account-id: "false"
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Set tag for deploy job
+        id: docker-tag
+        run: echo "tag=${{ env.GitVersion_MajorMinorPatch }}-${{ github.run_number }}" >> "$GITHUB_OUTPUT"
+
+      - name: Build, tag, and push image to Amazon ECR
+        id: ecr-build
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          VERSION: ${{ env.GitVersion_MajorMinorPatch }}
+          IMAGE_TAG: ${{ steps.docker-tag.outputs.tag }}
+        run: |
+          docker build --build-arg Version=${{ env.VERSION }} -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Copy contents
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{ secrets.USERNAME }}
+          source: 'docker-compose.yml'
+          target: '~/miguelguedelha-com/services/'
+
+      - name: SSH Into Hetzner VPS
+        uses: appleboy/ssh-action@master
+        env:
+          ECR_REGISTRY: ${{ needs.build.outputs.ecr-registry }}
+          IMAGE_TAG: ${{ needs.build.outputs.docker-tag }}
+          IMAGE_NAME: miguelguedelha-com-reverse-proxy
+        with:
+          host: ${{ secrets.HOST }}
+          port: ${{ secrets.PORT }}
+          key: ${{ secrets.SSH_KEY }}
+          username: ${{ secrets.USERNAME }}
+          envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG,IMAGE_NAME,
+          script: |
+            docker compose up -d
+            docker stop $IMAGE_NAME 2> /dev/null
+            docker rm $IMAGE_NAME 2> /dev/null
+            docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker run --name $IMAGE_NAME -d --restart on-failure:3 --network=miguelguedelha-com \
+              -p 80:8080 \
+              -p 443:443 \
+              -v ~/miguelguedelha-com/reverse-proxy/logs:/app/logs \
+              -v ~/miguelguedelha-com/reverse-proxy/certificates:/data/LettuceEncrypt
+              -e ASPNETCORE_ENVIRONMENT=Production \
+              $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+            docker image prune -a -f

@@ -1,0 +1,29 @@
+﻿### Frontend
+GET https://www.miguelguedelha.com/
+
+### Frontend - Sub page
+GET https://www.miguelguedelha.com/cookie-policy
+
+### Sitemap
+GET https://www.miguelguedelha.com/sitemap.xml
+
+### Frontend - Robots.txt
+GET https://www.miguelguedelha.com/robots.txt
+
+### Site API - Swagger
+GET https://siteapi.miguelguedelha.com/swagger
+
+### Site API - Page
+GET https://siteapi.miguelguedelha.com/v1/page/index
+
+### Site API Robots.txt
+GET https://siteapi.miguelguedelha.com/robots.txt
+
+### Redis Commander
+GET https://dashboards.miguelguedelha.com/redis-ui
+
+### Sleep Token Rune Generator
+GET https://runegen.miguelguedelha.com/
+
+### Sleep Token Rune Generator - Sub page
+GET https://runegen.miguelguedelha.com/cookie-policy
