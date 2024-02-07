@@ -90,7 +90,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           envs: ECR_REGISTRY,ECR_REPOSITORY,IMAGE_TAG,IMAGE_NAME,REDIS_COMMANDER_HTTP_USER,REDIS_COMMANDER_HTTP_PASSWORD
           script: |
-            docker compose up -d
+            docker compose -f ~/miguelguedelha-com/services/docker-compose.yml up -d
             docker stop $IMAGE_NAME 2> /dev/null
             docker rm $IMAGE_NAME 2> /dev/null
             docker pull $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -98,7 +98,7 @@ jobs:
               -p 80:8080 \
               -p 443:443 \
               -v ~/miguelguedelha-com/reverse-proxy/logs:/app/logs \
-              -v ~/miguelguedelha-com/reverse-proxy/certificates:/data/LettuceEncrypt
+              -v ~/miguelguedelha-com/reverse-proxy/certificates:/data/LettuceEncrypt \
               -e ASPNETCORE_ENVIRONMENT=Production \
               $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
             docker image prune -a -f
