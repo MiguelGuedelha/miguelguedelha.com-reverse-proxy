@@ -1,18 +1,5 @@
 version: '3.8'
 services:
-  reverse-proxy:
-    build:
-      context: ./MiguelGuedelha.ReverseProxy/
-      dockerfile: ./MiguelGuedelha.ReverseProxy/Dockerfile
-    container_name: reverse-proxy
-    ports:
-      - "80:8080"
-      - "443:443"
-    volumes:
-      - ./data/yarp/certificates:/data/LettuceEncrypt
-    restart: always
-    networks:
-      - miguelguedelha-com
   redis:
     container_name: redis
     image: redis:alpine
