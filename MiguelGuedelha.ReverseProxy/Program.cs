@@ -16,7 +16,7 @@ if (builder.Environment.IsProduction())
 
 var app = builder.Build();
 
-app.UseStaticFiles();
+//app.UseStaticFiles();
 
 app.MapReverseProxy();
 
