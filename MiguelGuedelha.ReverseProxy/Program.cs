@@ -16,11 +16,6 @@ if (builder.Environment.IsProduction())
 
 var app = builder.Build();
 
-if (builder.Environment.IsProduction())
-{
-    app.UseHttpsRedirection();
-}
-
 app.UseStaticFiles();
 
 app.MapReverseProxy();
